@@ -12,12 +12,18 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * Teste le listener qui gère la liste des films récemment consultés en session.
+ */
 class RecentlyViewedMoviesListenerTest extends TestCase
 {
     private Session $session;
     private RequestStack $requestStack;
     private RecentlyViewedMoviesListener $listener;
 
+    /**
+     * Initialise une session simulée pour chaque test.
+     */
     protected function setUp(): void
     {
         $this->session = new Session(new MockArraySessionStorage());
@@ -28,6 +34,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->requestStack->push($request);
     }
 
+    /**
+     * Crée un mock de TmdbApiService qui retourne des données prédéfinies.
+     */
     private function createTmdbMock(array $returnValue): TmdbApiService
     {
         $mock = $this->getMockBuilder(TmdbApiService::class)
@@ -42,6 +51,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         return $mock;
     }
 
+    /**
+     * Un film affiché doit se retrouver ajouté dans la session (dans l'historique).
+     */
     public function testListenerSavesMovieIdToSession(): void
     {
         $tmdbApiService = $this->createTmdbMock([
@@ -70,6 +82,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->assertContains(550, $recentMovies);
     }
 
+    /**
+     * On ne garde pas plus de 5 films : l'ajout d'un 6ème écrase le plus ancien.
+     */
     public function testListenerLimitsToMaximumFiveMovies(): void
     {
         $tmdbApiService = $this->createTmdbMock([
@@ -86,7 +101,7 @@ class RecentlyViewedMoviesListenerTest extends TestCase
 
         $kernel = $this->createMock(HttpKernelInterface::class);
 
-        // Ajouter 7 films
+        // Ajoute 7 films pour vérifier le maximum de 5 conservés.
         for ($i = 1; $i <= 7; $i++) {
             $request = new Request();
             $request->setSession($this->session);
@@ -101,12 +116,15 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->assertCount(5, $recentMovies);
     }
 
+    /**
+     * Consulter à nouveau un film déjà dans la liste le replace en tête.
+     */
     public function testListenerMovesExistingMovieToFront(): void
     {
-        // Préremplir avec des films
+        // Prétend qu'on a déjà vu ces 5 films, donc [1,2,3,4,5]
         $this->session->set('recent_movies', [1, 2, 3, 4, 5]);
         
-        // Ajouter des données pour les films existants
+        // Stock données fictives pour chaque film
         $this->session->set('movie_1', ['id' => 1, 'title' => 'Movie 1']);
         $this->session->set('movie_2', ['id' => 2, 'title' => 'Movie 2']);
         $this->session->set('movie_3', ['id' => 3, 'title' => 'Movie 3']);
@@ -139,6 +157,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->assertEquals(3, $recentMovies[0]);
     }
 
+    /**
+     * Si la route n'est pas "movie_details", rien ne doit être modifié.
+     */
     public function testListenerDoesNothingOnNonDetailsRoute(): void
     {
         $tmdbApiService = $this->createTmdbMock([]);
@@ -161,6 +182,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->assertEmpty($recentMovies);
     }
 
+    /**
+     * Aucun effet sur une sous-requête (SUB_REQUEST).
+     */
     public function testListenerDoesNothingOnSubRequest(): void
     {
         $tmdbApiService = $this->createTmdbMock([]);
@@ -184,6 +208,9 @@ class RecentlyViewedMoviesListenerTest extends TestCase
         $this->assertEmpty($recentMovies);
     }
 
+    /**
+     * Les données du film affiché sont aussi stockées dans la session (pour la sidebar).
+     */
     public function testListenerStoresMovieDataInSession(): void
     {
         $movieData = [
@@ -210,7 +237,7 @@ class RecentlyViewedMoviesListenerTest extends TestCase
 
         $this->listener->onKernelRequest($event);
 
-        // Vérifier que les données du film sont stockées
+        // Vérifie que les données du film sont stockées pour la clé 'movie_550'
         $storedMovie = $this->session->get('movie_550');
         $this->assertNotNull($storedMovie);
         $this->assertEquals('Fight Club', $storedMovie['title']);

@@ -18,8 +18,8 @@ Application web de recherche et consultation de films utilisant l'API TMDB (The 
 
 ### Stack Technique
 
-- **Backend** : Symfony 7.2, PHP 8.4
-- **Frontend** : CSS pur (sans framework), JavaScript vanilla
+- **Backend** : Symfony 7, PHP 8.4
+- **Frontend** : CSS pur (sans framework)
 - **API** : TMDB (The Movie Database)
 - **Conteneurisation** : Docker + Docker Compose
 - **Tests** : PHPUnit (unitaires, intégration, régression)
@@ -39,14 +39,14 @@ Application web de recherche et consultation de films utilisant l'API TMDB (The 
 
 - Docker Desktop installé
 - Git
-- Compte TMDB pour obtenir une clé API (gratuit)
+- Créer un compte TMDB pour obtenir une clé API (gratuit), ou utiliser celle par défaut
 
 ### Étapes d'installation
 
 1. **Cloner le repository**
 ```bash
-git clone https://github.com/votre-username/louflix.git
-cd louflix
+git clone https://github.com/LouisZerri/movie-app.git
+cd movie-app
 ```
 
 2. **Obtenir une clé API TMDB**

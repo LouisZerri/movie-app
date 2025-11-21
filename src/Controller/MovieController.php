@@ -8,15 +8,24 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Contrôleur pour la gestion des films.
+ */
 #[Route('/movies')]
 class MovieController extends AbstractController
 {
+    /**
+     * Service pour interagir avec l'API TMDB.
+     */
     public function __construct(
         private TmdbApiService $tmdbApiService
     ) {}
 
     /**
-     * Liste des films populaires
+     * Affiche la liste des films populaires (page d'accueil films).
+     *
+     * @param Request $request
+     * @return Response
      */
     #[Route('/', name: 'movie_index')]
     public function index(Request $request): Response
@@ -35,7 +44,10 @@ class MovieController extends AbstractController
     }
 
     /**
-     * Recherche de films
+     * Recherche de films par titre.
+     *
+     * @param Request $request
+     * @return Response
      */
     #[Route('/search', name: 'movie_search')]
     public function search(Request $request): Response
@@ -67,17 +79,10 @@ class MovieController extends AbstractController
     }
 
     /**
-     * DEBUG - Voir ce que l'API renvoie
-     */
-    #[Route('/debug-api', name: 'movie_debug_api')]
-    public function debugApi(): Response
-    {
-        $popular = $this->tmdbApiService->getPopularMovies(1);
-        dd($popular);
-    }
-
-    /**
-     * Détails d'un film
+     * Affiche les détails d'un film par son identifiant.
+     *
+     * @param int $id
+     * @return Response
      */
     #[Route('/{id}', name: 'movie_details', requirements: ['id' => '\d+'])]
     public function details(int $id): Response
@@ -95,7 +100,11 @@ class MovieController extends AbstractController
     }
 
     /**
-     * Films par genre
+     * Liste les films d'un genre donné.
+     *
+     * @param int $genreId
+     * @param Request $request
+     * @return Response
      */
     #[Route('/genre/{genreId}', name: 'movie_by_genre', requirements: ['genreId' => '\d+'])]
     public function byGenre(int $genreId, Request $request): Response
@@ -103,7 +112,7 @@ class MovieController extends AbstractController
         $page = max(1, $request->query->getInt('page', 1));
         $apiResponse = $this->tmdbApiService->getMoviesByGenre($genreId, $page);
 
-        // Récupérer le nom du genre
+        // Recherche du nom du genre
         $genres = $this->tmdbApiService->getGenres();
         $genreName = 'Films';
         if (isset($genres['genres'])) {
@@ -127,7 +136,10 @@ class MovieController extends AbstractController
     }
 
     /**
-     * Films à venir
+     * Affiche les films à venir.
+     *
+     * @param Request $request
+     * @return Response
      */
     #[Route('/upcoming', name: 'movie_upcoming')]
     public function upcoming(Request $request): Response

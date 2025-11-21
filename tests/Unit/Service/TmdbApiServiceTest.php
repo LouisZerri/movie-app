@@ -9,8 +9,14 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+/**
+ * Tests unitaires pour le service TmdbApiService (API TMDB et cache).
+ */
 class TmdbApiServiceTest extends TestCase
 {
+    /**
+     * Simule un cache toujours vide (passe directement au callback).
+     */
     private function createCacheMock(): CacheInterface
     {
         $cache = $this->getMockBuilder(CacheInterface::class)->getMock();
@@ -22,6 +28,9 @@ class TmdbApiServiceTest extends TestCase
         return $cache;
     }
 
+    /**
+     * Vérifie que searchMovies renvoie bien la structure attendue.
+     */
     public function testSearchMoviesReturnsResults(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -47,6 +56,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertEquals('Fight Club', $result['results'][0]['title']);
     }
 
+    /**
+     * Vérifie la récupération des détails d'un film.
+     */
     public function testGetMovieDetailsReturnsMovieData(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -69,6 +81,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertEquals(139, $result['runtime']);
     }
 
+    /**
+     * Vérifie que getPopularMovies renvoie des films populaires.
+     */
     public function testGetPopularMoviesReturnsResults(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -90,6 +105,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertCount(2, $result['results']);
     }
 
+    /**
+     * Vérifie que getUpcomingMovies renvoie des films à venir.
+     */
     public function testGetUpcomingMoviesReturnsResults(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -111,6 +129,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertCount(2, $result['results']);
     }
 
+    /**
+     * Vérifie la récupération de films par genre.
+     */
     public function testGetMoviesByGenreReturnsResults(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -132,6 +153,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertCount(2, $result['results']);
     }
 
+    /**
+     * Vérifie la récupération de la liste des genres.
+     */
     public function testGetGenresReturnsGenreList(): void
     {
         $mockResponse = new MockResponse(json_encode([
@@ -153,6 +177,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertEquals('Action', $result['genres'][0]['name']);
     }
 
+    /**
+     * Teste la génération correcte d'une URL d'image TMDB.
+     */
     public function testGetImageUrlReturnsCorrectUrl(): void
     {
         $httpClient = $this->createMock(\Symfony\Contracts\HttpClient\HttpClientInterface::class);
@@ -166,6 +193,9 @@ class TmdbApiServiceTest extends TestCase
         $this->assertNull($nullUrl);
     }
 
+    /**
+     * Vérifie qu'une recherche vide appelle bien l'API (pas d'erreur/boucle).
+     */
     public function testEmptySearchQueryStillCallsApi(): void
     {
         $mockResponse = new MockResponse(json_encode([
