@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recherche - LouFlix{% endblock %}
+
+{% block body %}
+<main>
+    <div class="container main-layout">
+        <div class="main-content">
+            <form action="{{ path('movie_search') }}" method="get" class="search-form">
+                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher un film..." required>
+                <button type="submit" class="btn">🔍 Rechercher</button>
+            </form>
+
+            {% if hasError %}
+                <div class="alert alert-error">
+                    <strong>Erreur !</strong> {{ errorMessage }}
+                </div>
+            {% endif %}
+
+            {% if query %}
+                <div class="section-header">
+                    <h2>Résultats pour "{{ query }}"</h2>
+                    <p>{{ movies|length }} film(s) trouvé(s)</p>
+                </div>
+
+                {% if movies is empty %}
+                    <div class="empty-state">
+                        <h3>Aucun film trouvé</h3>
+                        <p>Essayez avec un autre titre</p>
+                    </div>
+                {% else %}
+                    <div class="movies-grid">
+                        {% for movie in movies %}
+                            <article class="movie-card">
+                                <div class="movie-card-image">
+                                    {% if movie.poster_path %}
+                                        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                    {% else %}
+                                        <span class="placeholder">🎥</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="movie-card-content">
+                                    <h3 class="movie-card-title">{{ movie.title }}</h3>
+                                    
+                                    <div class="movie-card-meta">
+                                        {% if movie.release_date %}
+                                            <span>{{ movie.release_date|date('Y') }}</span>
+                                        {% endif %}
+                                        
+                                        {% if movie.vote_average %}
+                                            <div class="movie-card-rating">
+                                                <span>⭐</span>
+                                                <span>{{ movie.vote_average|number_format(1) }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <a href="{{ path('movie_details', {id: movie.id}) }}" class="btn movie-card-btn">
+                                        Voir les détails
+                                    </a>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+
+                    {% if totalPages > 1 %}
+                        <div class="pagination">
+                            {% if page > 1 %}
+                                <a href="{{ path('movie_search', {q: query, page: page - 1}) }}" class="btn">← Précédent</a>
+                            {% endif %}
+                            <span class="pagination-page">Page {{ page }} / {{ totalPages }}</span>
+                            {% if page < totalPages %}
+                                <a href="{{ path('movie_search', {q: query, page: page + 1}) }}" class="btn">Suivant →</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>Recherchez un film</h3>
+                    <p>Entrez le titre d'un film pour commencer</p>
+                    
+                    {% if suggestions is defined %}
+                        <div class="suggestions-container">
+                            <h4>💡 Suggestions populaires :</h4>
+                            <div class="suggestions-list">
+                                {% for suggestion in suggestions %}
+                                    <a href="{{ path('movie_search', {q: suggestion}) }}" class="btn btn-suggestion">
+                                        {{ suggestion }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            {% set recentMovies = get_recent_movies() %}
+            {% if recentMovies|length > 0 %}
+                <div class="recent-movies-widget">
+                    <h3>📌 Récemment consultés</h3>
+                    <div class="recent-movies-list">
+                        {% for movie in recentMovies %}
+                            <a href="{{ path('movie_details', {id: movie.id}) }}" class="recent-movie-item">
+                                {% if movie.poster_path %}
+                                    <img src="https://image.tmdb.org/t/p/w92{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                {% else %}
+                                    <div class="recent-movie-placeholder">🎥</div>
+                                {% endif %}
+                                <div class="recent-movie-info">
+                                    <div class="recent-movie-title">{{ movie.title|length > 30 ? movie.title|slice(0, 30) ~ '...' : movie.title }}</div>
+                                    <div class="recent-movie-year">{{ movie.release_date|date('Y') }}</div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </aside>
+    </div>
+</main>
+{% endblock %}

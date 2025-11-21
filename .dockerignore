@@ -1,0 +1,8 @@
+.git
+.gitignore
+README.md
+var/
+vendor/
+node_modules/
+.env.local
+.env.*.local

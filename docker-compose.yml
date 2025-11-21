@@ -1,0 +1,20 @@
+services:
+  # Service PHP avec Apache
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: louflix_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APP_ENV=dev
+      - APP_SECRET=change_this_secret_in_production
+    networks:
+      - louflix_network
+
+networks:
+  louflix_network:
+    driver: bridge

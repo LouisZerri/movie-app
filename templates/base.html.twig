@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LouFlix{% endblock %}</title>
+    {{ encore_entry_link_tags('app') }}
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="{{ path('movie_index') }}">
+                <h1>🎬 LouFlix</h1>
+            </a>
+            <nav>
+                <a href="{{ path('movie_index') }}">Populaires</a>
+                <a href="{{ path('movie_upcoming') }}">À venir</a>
+                <a href="{{ path('movie_search') }}">Recherche</a>
+            </nav>
+        </div>
+    </header>
+
+    {% block body %}{% endblock %}
+
+    <footer>
+        <div class="container">
+            <p>Développé avec ❤️ par Louis | LouFlix © 2025</p>
+        </div>
+    </footer>
+
+    {{ encore_entry_script_tags('app') }}
+</body>
+</html>

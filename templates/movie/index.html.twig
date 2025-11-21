@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Films Populaires - LouFlix{% endblock %}
+
+{% block body %}
+<main>
+    <div class="container main-layout">
+        <div class="main-content">
+            {% if hasError %}
+                <div class="alert alert-error">
+                    <strong>Erreur !</strong> {{ errorMessage }}
+                </div>
+            {% endif %}
+
+            <div class="section-header">
+                <h2>Films Populaires</h2>
+                <p>Les films les plus regardés du moment</p>
+            </div>
+
+            {% if movies is empty %}
+                <div class="empty-state">
+                    <h3>Aucun film trouvé</h3>
+                    <p>Impossible de charger les films pour le moment</p>
+                </div>
+            {% else %}
+                <div class="movies-grid">
+                    {% for movie in movies %}
+                        <article class="movie-card">
+                            <div class="movie-card-image">
+                                {% if movie.poster_path %}
+                                    <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                {% else %}
+                                    <span class="placeholder">🎥</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="movie-card-content">
+                                <h3 class="movie-card-title">{{ movie.title }}</h3>
+                                
+                                <div class="movie-card-meta">
+                                    {% if movie.release_date %}
+                                        <span>{{ movie.release_date|date('Y') }}</span>
+                                    {% endif %}
+                                    
+                                    {% if movie.vote_average %}
+                                        <div class="movie-card-rating">
+                                            <span>⭐</span>
+                                            <span>{{ movie.vote_average|number_format(1) }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <a href="{{ path('movie_details', {id: movie.id}) }}" class="btn movie-card-btn">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <div class="pagination">
+                    {% if page > 1 %}
+                        <a href="{{ path('movie_index', {page: page - 1}) }}" class="btn">← Précédent</a>
+                    {% endif %}
+                    <span class="pagination-page">Page {{ page }} / {{ totalPages }}</span>
+                    {% if page < totalPages %}
+                        <a href="{{ path('movie_index', {page: page + 1}) }}" class="btn">Suivant →</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="sidebar">
+            {% set recentMovies = get_recent_movies() %}
+            {% if recentMovies|length > 0 %}
+                <div class="recent-movies-widget">
+                    <h3>📌 Récemment consultés</h3>
+                    <div class="recent-movies-list">
+                        {% for movie in recentMovies %}
+                            <a href="{{ path('movie_details', {id: movie.id}) }}" class="recent-movie-item">
+                                {% if movie.poster_path %}
+                                    <img src="https://image.tmdb.org/t/p/w92{{ movie.poster_path }}" alt="{{ movie.title }}">
+                                {% else %}
+                                    <div class="recent-movie-placeholder">🎥</div>
+                                {% endif %}
+                                <div class="recent-movie-info">
+                                    <div class="recent-movie-title">{{ movie.title|length > 30 ? movie.title|slice(0, 30) ~ '...' : movie.title }}</div>
+                                    <div class="recent-movie-year">{{ movie.release_date|date('Y') }}</div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </aside>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ movie.title }} - LouFlix{% endblock %}
+
+{% block body %}
+<main>
+    <div class="container details-layout">
+        <div class="details-poster">
+            {% if movie.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }}" class="poster-image">
+            {% else %}
+                <div class="poster-placeholder">🎥</div>
+            {% endif %}
+        </div>
+
+        <div class="details-content">
+            <h1 class="details-title">{{ movie.title }}</h1>
+
+            {% if movie.original_title and movie.original_title != movie.title %}
+                <p class="details-original-title">{{ movie.original_title }}</p>
+            {% endif %}
+
+            <div class="details-meta">
+                {% if movie.release_date %}
+                    <span class="meta-badge">📅 {{ movie.release_date|date('d/m/Y') }}</span>
+                {% endif %}
+
+                {% if movie.vote_average %}
+                    <span class="meta-badge meta-rating">⭐ {{ movie.vote_average|number_format(1) }}/10</span>
+                {% endif %}
+
+                {% if movie.runtime %}
+                    <span class="meta-badge">⏱️ {{ movie.runtime }} min</span>
+                {% endif %}
+            </div>
+
+            {% if movie.genres %}
+                <div class="details-section">
+                    <h3>🎭 Genres</h3>
+                    <div class="genres-list">
+                        {% for genre in movie.genres %}
+                            <a href="{{ path('movie_by_genre', {genreId: genre.id}) }}" class="btn btn-genre">
+                                {{ genre.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if movie.overview %}
+                <div class="details-section">
+                    <h3>📖 Synopsis</h3>
+                    <p class="details-overview">{{ movie.overview }}</p>
+                </div>
+            {% endif %}
+
+            {% if movie.credits and movie.credits.cast %}
+                <div class="details-section">
+                    <h3>👥 Acteurs principaux</h3>
+                    <p class="details-cast">
+                        {% for actor in movie.credits.cast|slice(0, 5) %}
+                            {{ actor.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            {% endif %}
+
+            {% if movie.credits and movie.credits.crew %}
+                {% for crew in movie.credits.crew %}
+                    {% if crew.job == 'Director' %}
+                        <div class="details-section">
+                            <h3>🎬 Réalisateur</h3>
+                            <p class="details-director">{{ crew.name }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <a href="{{ path('movie_index') }}" class="btn">← Retour à la liste</a>
+        </div>
+
+        <aside class="sidebar">
+            {% set recentMovies = get_recent_movies() %}
+            {% if recentMovies|length > 0 %}
+                <div class="recent-movies-widget">
+                    <h3>📌 Récemment consultés</h3>
+                    <div class="recent-movies-list">
+                        {% for recentMovie in recentMovies %}
+                            {% if recentMovie.id != movie.id %}
+                                <a href="{{ path('movie_details', {id: recentMovie.id}) }}" class="recent-movie-item">
+                                    {% if recentMovie.poster_path %}
+                                        <img src="https://image.tmdb.org/t/p/w92{{ recentMovie.poster_path }}" alt="{{ recentMovie.title }}">
+                                    {% else %}
+                                        <div class="recent-movie-placeholder">🎥</div>
+                                    {% endif %}
+                                    <div class="recent-movie-info">
+                                        <div class="recent-movie-title">{{ recentMovie.title|length > 30 ? recentMovie.title|slice(0, 30) ~ '...' : recentMovie.title }}</div>
+                                        <div class="recent-movie-year">{{ recentMovie.release_date|date('Y') }}</div>
+                                    </div>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </aside>
+    </div>
+</main>
+{% endblock %}

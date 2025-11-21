@@ -1,0 +1,8 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    # Services de test disponibles publiquement
+    test.App\Service\TmdbApiService: '@App\Service\TmdbApiService'
